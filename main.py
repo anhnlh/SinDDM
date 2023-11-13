@@ -156,7 +156,7 @@ def main():
         clip_cfg = {"clip_model_name": "ViT-B/32",
                     "clip_affine_transform_fill": True,
                     "n_aug": 16}
-        t2l_clip_extractor = ClipExtractor(clip_cfg)
+        t2l_clip_extractor = ClipExtractor(clip_cfg, device=device)
         clip_custom_t_list = sample_t_list
 
         # number of gradient steps per diffusion step for each scale
@@ -192,7 +192,7 @@ def main():
         clip_cfg = {"clip_model_name": "ViT-B/32",
                     "clip_affine_transform_fill": True,
                     "n_aug": 16}
-        t2l_clip_extractor = ClipExtractor(clip_cfg)
+        t2l_clip_extractor = ClipExtractor(clip_cfg, device=device)
         clip_custom_t_list = sample_t_list
 
         guidance_sub_iters = []
@@ -231,7 +231,7 @@ def main():
         clip_cfg = {"clip_model_name": "ViT-B/32",
                     "clip_affine_transform_fill": True,
                     "n_aug": 16}
-        t2l_clip_extractor = ClipExtractor(clip_cfg)
+        t2l_clip_extractor = ClipExtractor(clip_cfg, device=device)
         strength = 0.1
         num_clip_iters = 100
         num_denoising_steps = 3

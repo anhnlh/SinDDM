@@ -12,17 +12,16 @@ import clip
 
 from text2live_util.util import compose_text_with_templates
 
-device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-
 
 def cosine_loss(x, y, scaling=1.2):
     return scaling * (1 - F.cosine_similarity(x, y).mean())
 
 
 class ClipExtractor(torch.nn.Module):
-    def __init__(self, cfg):
+    def __init__(self, cfg, device):
         super().__init__()
         self.cfg = cfg
+        self.device = device
         model = clip.load(cfg["clip_model_name"], device=device)[0]
         self.model = model.eval().requires_grad_(False)
         self.text_criterion = cosine_loss
@@ -119,7 +118,7 @@ class ClipExtractor(torch.nn.Module):
         for prompt in text:
             with torch.no_grad():
                 embedding = self.model.encode_text(
-                    clip.tokenize(compose_text_with_templates(prompt, template)).to(device)
+                    clip.tokenize(compose_text_with_templates(prompt, template)).to(self.device)
                 )
             embeddings.append(embedding)
         embeddings = torch.cat(embeddings)
