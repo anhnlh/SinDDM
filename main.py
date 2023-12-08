@@ -28,7 +28,7 @@ def main():
     parser.add_argument("--roi_n_tar", help='Defines the number of target ROIs in the new image.', default=1, type=int)
     # Dataset
     parser.add_argument("--dataset_folder", help='choose dataset folder.', default='./datasets/forest/')
-    parser.add_argument("--image_name", help='choose image name.', default='forest.jpeg')
+    parser.add_argument("--image_name", help='choose image name.', default='forest.png')
     parser.add_argument("--results_folder", help='choose results folder.', default='./results/')
     # Net
     parser.add_argument("--dim", help='widest channel dimension for conv blocks.', default=160, type=int)
