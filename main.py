@@ -1,3 +1,9 @@
+"""
+Main program
+
+Author: aln4739
+"""
+
 import torch
 import numpy as np
 import argparse
@@ -9,8 +15,13 @@ from SinDDM.trainer import MultiscaleTrainer
 from text2live_util.clip_extractor import ClipExtractor
 
 def main():
+    torch.cuda.empty_cache()
+    os.environ["PYTORCH_CUDA_ALLOC_CONF"] = "max_split_size_mb:512"
 
     parser = argparse.ArgumentParser()
+
+    # MODIFICATION
+    parser.add_argument("--receptive_field_offset", help='an offset for the kernel, contributing to the final receptive field', default=0, type=int)
 
     parser.add_argument("--scope", help='choose training scope.', default='forest')
     parser.add_argument("--mode", help='choose mode: train, sample, clip_content, clip_style_gen, clip_style_trans, clip_roi, harmonization, style_transfer, roi')
@@ -59,6 +70,9 @@ def main():
 
     args = parser.parse_args()
 
+    # if args.receptive_field_offset > 0:
+    #     assert args.receptive_field_offset % 2 == 0, "offset must be even to maintain odd kernel size"
+
     print('num devices: '+ str(torch.cuda.device_count()))
     device = f"cuda:{args.device_num}"
     scale_mul = (args.scale_mul[0], args.scale_mul[1])
@@ -77,7 +91,8 @@ def main():
     model = SinDDMNet(
         dim=args.dim,
         multiscale=True,
-        device=device
+        device=device,
+        kernel_offset=args.receptive_field_offset
     )
     model.to(device)
 
