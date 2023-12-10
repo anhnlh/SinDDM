@@ -49,7 +49,7 @@ class SinusoidalPosEmb(nn.Module):
 # building block modules
 
 class SinDDMConvBlock(nn.Module):
-    def __init__(self, dim, dim_out, *, time_emb_dim=None, mult=1):
+    def __init__(self, dim, dim_out, *, time_emb_dim=None, mult=1, kernel_offset=0):
         super().__init__()
         self.mlp = nn.Sequential(
             nn.GELU(),
@@ -58,11 +58,11 @@ class SinDDMConvBlock(nn.Module):
         ) if exists(time_emb_dim) else None
 
         self.time_reshape = nn.Conv2d(time_emb_dim, dim, 1)
-        self.ds_conv = nn.Conv2d(dim, dim, 5, padding=2, groups=dim)
+        self.ds_conv = nn.Conv2d(dim, dim, 5 + kernel_offset, padding=2 + kernel_offset // 2, groups=dim)
         self.net = nn.Sequential(
-            nn.Conv2d(dim, dim_out * mult, 3, padding=1),
+            nn.Conv2d(dim, dim_out * mult, 3 + kernel_offset, padding=1 + kernel_offset // 2),
             nn.GELU(),
-            nn.Conv2d(dim_out * mult, dim_out, 3, padding=1)
+            nn.Conv2d(dim_out * mult, dim_out, 3 + kernel_offset, padding=1 + kernel_offset // 2)
         )
         self.res_conv = nn.Conv2d(dim, dim_out, 1) if dim != dim_out else nn.Identity()
 
@@ -88,6 +88,7 @@ class SinDDMNet(nn.Module):
             dim,
             out_dim=None,
             channels=3,
+            kernel_offset=0,
             with_time_emb=True,
             multiscale=False,
             device=None
@@ -121,10 +122,10 @@ class SinDDMNet(nn.Module):
 
         half_dim = int(dim / 2)
 
-        self.l1 = SinDDMConvBlock(channels, half_dim, time_emb_dim=time_dim)
-        self.l2 = SinDDMConvBlock(half_dim, dim, time_emb_dim=time_dim)
-        self.l3 = SinDDMConvBlock(dim, dim, time_emb_dim=time_dim)
-        self.l4 = SinDDMConvBlock(dim, half_dim, time_emb_dim=time_dim)
+        self.l1 = SinDDMConvBlock(channels, half_dim, time_emb_dim=time_dim, kernel_offset=kernel_offset)
+        self.l2 = SinDDMConvBlock(half_dim, dim, time_emb_dim=time_dim, kernel_offset=kernel_offset)
+        self.l3 = SinDDMConvBlock(dim, dim, time_emb_dim=time_dim, kernel_offset=kernel_offset)
+        self.l4 = SinDDMConvBlock(dim, half_dim, time_emb_dim=time_dim, kernel_offset=kernel_offset)
 
         out_dim = default(out_dim, channels)
         self.final_conv = nn.Sequential(
