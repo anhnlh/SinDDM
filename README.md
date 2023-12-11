@@ -29,3 +29,4 @@ If you want to sample from individual models, just replace {model}, {k}, {prompt
 ```
 python3 main.py --scope {model}{k} --mode clip_style_gen --clip_text '{prompt}' --dataset_folder ./datasets/{model}/ --image_name {model}.png --results_folder  ./results/ --load_milestone 2 --receptive_field_offset {v} --device_num {num}"
 ```
+__Note:__ To run the script on a different image scale, move the desired model from the `./results/{model}_{big/small}_scale` folder to the associated `./results/{model}` folder, then run the model with an empty k and v of 0
